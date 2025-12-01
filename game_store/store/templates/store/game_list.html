@@ -1,0 +1,101 @@
+{% extends 'store/base.html' %}
+
+{% block title %}Каталог игр - Game Store{% endblock %}
+
+{% block content %}
+<h1>Каталог игр</h1>
+
+<div class="filters">
+    <form method="get" action="{% url 'game_list' %}">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+            <div class="filter-group">
+                <label for="search">Поиск:</label>
+                <input type="text" id="search" name="search" value="{{ search_query }}" placeholder="Название игры...">
+            </div>
+            
+            <div class="filter-group">
+                <label for="genre">Жанр:</label>
+                <select id="genre" name="genre">
+                    <option value="">Все жанры</option>
+                    {% for genre in genres %}
+                    <option value="{{ genre.id }}" {% if selected_genre == genre.id|stringformat:"i" %}selected{% endif %}>
+                        {{ genre.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label for="tag">Тег:</label>
+                <select id="tag" name="tag">
+                    <option value="">Все теги</option>
+                    {% for tag in tags %}
+                    <option value="{{ tag.id }}" {% if selected_tag == tag.id|stringformat:"i" %}selected{% endif %}>
+                        {{ tag.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label for="sort">Сортировка:</label>
+                <select id="sort" name="sort">
+                    <option value="title" {% if sort_by == 'title' %}selected{% endif %}>По названию (А-Я)</option>
+                    <option value="newest" {% if sort_by == 'newest' %}selected{% endif %}>Сначала новые</option>
+                    <option value="price_asc" {% if sort_by == 'price_asc' %}selected{% endif %}>Цена (по возрастанию)</option>
+                    <option value="price_desc" {% if sort_by == 'price_desc' %}selected{% endif %}>Цена (по убыванию)</option>
+                </select>
+            </div>
+        </div>
+        
+        <div style="margin-top: 20px; display: flex; gap: 10px;">
+            <button type="submit" class="btn">Применить фильтры</button>
+            <a href="{% url 'game_list' %}" class="btn btn-danger">Сбросить</a>
+        </div>
+    </form>
+</div>
+
+{% if games %}
+<div class="games-grid">
+    {% for game in games %}
+    <div class="game-card">
+        {% if game.image %}
+        <img src="{{ game.image.url }}" alt="{{ game.title }}" class="game-image">
+        {% else %}
+        <div class="game-image" style="background: #667eea; display: flex; align-items: center; justify-content: center; color: white;">
+            🎮
+        </div>
+        {% endif %}
+        <div class="game-info">
+            <h3 class="game-title">{{ game.title }}</h3>
+            <p><strong>Жанр:</strong> {{ game.genre.name }}</p>
+            <p><strong>Теги:</strong> 
+                {% for tag in game.tags.all %}
+                <span style="background: #f0f0f0; padding: 2px 5px; border-radius: 3px; font-size: 0.9rem; margin-right: 5px;">
+                    {{ tag.name }}
+                </span>
+                {% endfor %}
+            </p>
+            <p><strong>В наличии:</strong> {{ game.quantity }} шт.</p>
+            <p class="game-price">{{ game.price }} ₽</p>
+            <div style="display: flex; gap: 10px;">
+                <a href="{% url 'game_detail' game.id %}" class="btn">Подробнее</a>
+                {% if game.quantity > 0 %}
+                <form action="{% url 'add_to_cart' game.id %}" method="post" style="margin: 0;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn">В корзину</button>
+                </form>
+                {% else %}
+                <button class="btn" disabled>Нет в наличии</button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div style="text-align: center; padding: 40px; background: white; border-radius: 8px;">
+    <p style="font-size: 1.2rem;">Игры не найдены. Попробуйте изменить фильтры.</p>
+</div>
+{% endif %}
+{% endblock %}

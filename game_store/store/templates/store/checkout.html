@@ -1,0 +1,95 @@
+{% extends 'store/base.html' %}
+
+{% block title %}Оформление заказа - Game Store{% endblock %}
+
+{% block content %}
+<h1>Оформление заказа</h1>
+
+<div style="display: grid; grid-template-columns: 2fr 1fr; gap: 40px;">
+    <div>
+        <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+            <h2>Ваш заказ</h2>
+            <table style="width: 100%; margin: 20px 0;">
+                <thead>
+                    <tr style="border-bottom: 2px solid #667eea;">
+                        <th style="padding: 10px; text-align: left;">Товар</th>
+                        <th style="padding: 10px; text-align: center;">Количество</th>
+                        <th style="padding: 10px; text-align: right;">Цена</th>
+                        <th style="padding: 10px; text-align: right;">Сумма</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in cart_items %}
+                    <tr style="border-bottom: 1px solid #f0f0f0;">
+                        <td style="padding: 10px;">{{ item.game.title }}</td>
+                        <td style="padding: 10px; text-align: center;">{{ item.quantity }}</td>
+                        <td style="padding: 10px; text-align: right;">{{ item.game.price }} ₽</td>
+                        <td style="padding: 10px; text-align: right;">{{ item.total }} ₽</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="3" style="padding: 10px; text-align: right;"><strong>Итого:</strong></td>
+                        <td style="padding: 10px; text-align: right; font-size: 1.2rem; color: #667eea;">
+                            <strong>{{ total_price }} ₽</strong>
+                        </td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+
+        <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-top: 20px;">
+            <h2>Информация о покупателе</h2>
+            <p><strong>Имя пользователя:</strong> {{ user.username }}</p>
+            <p><strong>Email:</strong> {{ user.email }}</p>
+            {% if customer.phone %}
+            <p><strong>Телефон:</strong> {{ customer.phone }}</p>
+            {% endif %}
+            {% if customer.address %}
+            <p><strong>Адрес:</strong> {{ customer.address }}</p>
+            {% endif %}
+            
+            <p style="margin-top: 15px; color: #666; font-size: 0.9rem;">
+                Чтобы изменить контактные данные, перейдите в <a href="/admin/">личный кабинет</a>.
+            </p>
+        </div>
+    </div>
+    
+    <div>
+        <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+            <h2>Подтверждение заказа</h2>
+            <p style="margin: 20px 0;">
+                Пожалуйста, проверьте информацию о заказе перед подтверждением.
+            </p>
+            
+            <div style="background: #f8f9fa; padding: 15px; border-radius: 4px; margin-bottom: 20px;">
+                <p><strong>Количество товаров:</strong> {{ cart_items|length }}</p>
+                <p><strong>Общая сумма:</strong> {{ total_price }} ₽</p>
+            </div>
+            
+            <form method="post" action="{% url 'checkout' %}">
+                {% csrf_token %}
+                <div style="margin-bottom: 15px;">
+                    <label>
+                        <input type="checkbox" required>
+                        Я согласен с условиями покупки
+                    </label>
+                </div>
+                
+                <button type="submit" class="btn" style="width: 100%; padding: 15px; font-size: 1.1rem; background: #28a745;">
+                    Подтвердить заказ
+                </button>
+            </form>
+            
+            <p style="margin-top: 15px; color: #666; font-size: 0.9rem; text-align: center;">
+                После подтверждения заказ будет обработан в течение 24 часов.
+            </p>
+        </div>
+        
+        <div style="margin-top: 20px; text-align: center;">
+            <a href="{% url 'cart' %}" class="btn" style="background: #6c757d;">← Вернуться в корзину</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

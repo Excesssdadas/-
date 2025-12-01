@@ -1,0 +1,86 @@
+{% extends 'store/base.html' %}
+
+{% block title %}Топ 10 самых продаваемых игр - Game Store{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+    <h1>🏆 Топ 10 самых продаваемых игр</h1>
+    <div>
+        <a href="{% url 'reports' %}" class="btn" style="background: #6c757d;">← Назад к отчетам</a>
+    </div>
+</div>
+
+<div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+    <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+        <div>
+            <h3>Статистика продаж</h3>
+            <p>Рейтинг игр по количеству проданных копий</p>
+        </div>
+        <div style="display: flex; gap: 10px;">
+            <a href="?format=json" class="btn" style="background: #6c757d;">Скачать JSON</a>
+            <a href="?format=csv" class="btn" style="background: #28a745;">Скачать CSV</a>
+        </div>
+    </div>
+
+    {% if top_games %}
+    <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr style="background: #667eea; color: white;">
+                    <th style="padding: 12px; text-align: left;">#</th>
+                    <th style="padding: 12px; text-align: left;">Игра</th>
+                    <th style="padding: 12px; text-align: left;">Жанр</th>
+                    <th style="padding: 12px; text-align: center;">Продано копий</th>
+                    <th style="padding: 12px; text-align: right;">Общая выручка</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in top_games %}
+                <tr style="border-bottom: 1px solid #f0f0f0;">
+                    <td style="padding: 12px; text-align: center; font-weight: bold;">{{ forloop.counter }}</td>
+                    <td style="padding: 12px;">
+                        <strong>{{ item.game__title }}</strong>
+                    </td>
+                    <td style="padding: 12px;">
+                        <span style="background: #e9ecef; padding: 3px 8px; border-radius: 4px; font-size: 0.9rem;">
+                            {{ item.game__genre__name }}
+                        </span>
+                    </td>
+                    <td style="padding: 12px; text-align: center; font-weight: bold;">
+                        {{ item.total_sold }}
+                    </td>
+                    <td style="padding: 12px; text-align: right; color: #28a745; font-weight: bold;">
+                        {{ item.total_revenue }} ₽
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <div style="margin-top: 30px; display: flex; justify-content: space-between; align-items: center;">
+        <div>
+            <p><strong>Всего записей:</strong> {{ top_games|length }}</p>
+        </div>
+        <div>
+            <button onclick="window.print()" class="btn" style="background: #17a2b8;">
+                🖨️ Распечатать отчет
+            </button>
+        </div>
+    </div>
+    {% else %}
+    <div style="text-align: center; padding: 40px;">
+        <p style="font-size: 1.2rem;">Нет данных о продажах</p>
+    </div>
+    {% endif %}
+</div>
+
+<div style="margin-top: 30px; background: #f8f9fa; padding: 20px; border-radius: 8px;">
+    <h3>Примечания:</h3>
+    <ul style="margin-top: 10px;">
+        <li>Данные обновляются в реальном времени</li>
+        <li>CSV файл можно открыть в Excel или Google Sheets</li>
+        <li>JSON формат подходит для интеграции с другими системами</li>
+    </ul>
+</div>
+{% endblock %}

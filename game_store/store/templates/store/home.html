@@ -1,0 +1,81 @@
+{% extends 'store/base.html' %}
+
+{% block title %}Главная - Game Store{% endblock %}
+
+{% block content %}
+<div class="hero">
+    <h1>Добро пожаловать в Game Store! 🎮</h1>
+    <p>Лучший выбор игр по лучшим ценам</p>
+    <a href="{% url 'game_list' %}" class="btn">Смотреть все игры</a>
+</div>
+
+<div class="featured-games">
+    <h2>Популярные игры</h2>
+    <div class="games-grid">
+        {% for game in featured_games %}
+        <div class="game-card">
+            {% if game.image %}
+            <img src="{{ game.image.url }}" alt="{{ game.title }}" class="game-image">
+            {% else %}
+            <div class="game-image" style="background: #667eea; display: flex; align-items: center; justify-content: center; color: white;">
+                🎮
+            </div>
+            {% endif %}
+            <div class="game-info">
+                <h3 class="game-title">{{ game.title }}</h3>
+                <p>{{ game.genre.name }}</p>
+                <p class="game-price">{{ game.price }} ₽</p>
+                <a href="{% url 'game_detail' game.id %}" class="btn">Подробнее</a>
+            </div>
+        </div>
+        {% empty %}
+        <p>Пока нет игр в магазине</p>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="categories">
+    <h2>Популярные жанры</h2>
+    <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px;">
+        {% for genre in genres %}
+        <a href="{% url 'game_list' %}?genre={{ genre.id }}" 
+           style="background: #667eea; color: white; padding: 10px 20px; border-radius: 4px; text-decoration: none;">
+            {{ genre.name }}
+        </a>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+    .hero {
+        text-align: center;
+        padding: 40px 0;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 8px;
+        margin-bottom: 40px;
+    }
+    
+    .hero h1 {
+        font-size: 2.5rem;
+        margin-bottom: 20px;
+    }
+    
+    .hero p {
+        font-size: 1.2rem;
+        margin-bottom: 30px;
+        opacity: 0.9;
+    }
+    
+    .featured-games, .categories {
+        margin-bottom: 40px;
+    }
+    
+    .featured-games h2, .categories h2 {
+        margin-bottom: 20px;
+        color: #333;
+        border-bottom: 2px solid #667eea;
+        padding-bottom: 10px;
+    }
+</style>
+{% endblock %}
