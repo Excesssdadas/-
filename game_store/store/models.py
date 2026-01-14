@@ -46,6 +46,18 @@ class Game(models.Model):
         verbose_name = "Игра"
         verbose_name_plural = "Игры"
 
+    def average_rating(self):
+        """Средний рейтинг игры"""
+        reviews = self.reviews.filter(is_approved=True)
+        if reviews.exists():
+            total = sum([review.rating for review in reviews])
+            return round(total / reviews.count(), 1)
+        return 0
+
+    def review_count(self):
+        """Количество отзывов"""
+        return self.reviews.filter(is_approved=True).count()
+
 
 class Customer(models.Model):
     """Модель для клиентов (расширяет стандартную модель пользователя)"""
@@ -70,10 +82,43 @@ class Order(models.Model):
         ('cancelled', 'Отменен'),
     ]
 
+    # НОВЫЕ КОНСТАНТЫ ДЛЯ ПЛАТЕЖЕЙ
+    PAYMENT_METHOD_CHOICES = [
+        ('card', 'Банковская карта'),
+        ('email', 'Оплата по email'),
+        ('none', 'Не выбран'),
+    ]
+
+    PAYMENT_STATUS_CHOICES = [
+        ('pending', 'Ожидает оплаты'),
+        ('completed', 'Оплачено'),
+        ('failed', 'Ошибка оплаты'),
+    ]
+
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE, verbose_name="Клиент")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending', verbose_name="Статус")
     total_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0, verbose_name="Общая сумма")
+
+    # НОВЫЕ ПОЛЯ ДЛЯ ПЛАТЕЖНОЙ СИСТЕМЫ
+    payment_method = models.CharField(
+        max_length=20,
+        choices=PAYMENT_METHOD_CHOICES,
+        default='none',
+        verbose_name="Способ оплаты"
+    )
+    payment_status = models.CharField(
+        max_length=20,
+        choices=PAYMENT_STATUS_CHOICES,
+        default='pending',
+        verbose_name="Статус оплаты"
+    )
+    payment_code = models.CharField(
+        max_length=8,
+        blank=True,
+        null=True,
+        verbose_name="Код подтверждения"
+    )
 
     def __str__(self):
         return f"Заказ #{self.id} - {self.customer}"
@@ -96,3 +141,31 @@ class OrderItem(models.Model):
     class Meta:
         verbose_name = "Элемент заказа"
         verbose_name_plural = "Элементы заказа"
+
+
+class Review(models.Model):
+    """Модель для отзывов на игры"""
+    game = models.ForeignKey(Game, on_delete=models.CASCADE, related_name='reviews', verbose_name="Игра")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Пользователь")
+    rating = models.IntegerField(
+        choices=[(1, '1 звезда'), (2, '2 звезды'), (3, '3 звезды'), (4, '4 звезды'), (5, '5 звезд')],
+        verbose_name="Рейтинг"
+    )
+    comment = models.TextField(verbose_name="Текст отзыва")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")
+    is_approved = models.BooleanField(default=True, verbose_name="Одобрен")
+
+    class Meta:
+        verbose_name = "Отзыв"
+        verbose_name_plural = "Отзывы"
+        unique_together = ['game', 'user']  # один отзыв на игру от пользователя
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.user.username} - {self.game.title} ({self.rating}/5)"
+
+    def get_stars_display(self):
+        """Возвращает HTML для отображения звезд"""
+        filled = '★' * self.rating
+        empty = '☆' * (5 - self.rating)
+        return f'<span style="color: gold; font-size: 1.2rem;">{filled}</span><span style="color: #ccc;">{empty}</span>'

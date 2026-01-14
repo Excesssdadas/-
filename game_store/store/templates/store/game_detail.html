@@ -8,10 +8,31 @@
         {% if game.image %}
         <img src="{{ game.image.url }}" alt="{{ game.title }}" style="width: 100%; border-radius: 8px;">
         {% else %}
-        <div style="width: 100%; height: 300px; background: #667eea; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-size: 3rem;">
+        <div style="width: 100%; height: 300px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-size: 3rem;">
             🎮
         </div>
         {% endif %}
+        
+        <!-- Рейтинг игры -->
+        <div style="margin-top: 20px; text-align: center; background: #f8f9fa; padding: 15px; border-radius: 8px;">
+            <h3 style="margin-bottom: 10px;">Рейтинг игры</h3>
+            <div style="font-size: 2rem; color: gold; margin-bottom: 5px;">
+                {% if average_rating > 0 %}
+                    {% for i in "12345" %}
+                        {% if forloop.counter <= average_rating|floatformat:0 %}
+                            ★
+                        {% else %}
+                            ☆
+                        {% endif %}
+                    {% endfor %}
+                {% else %}
+                    ☆☆☆☆☆
+                {% endif %}
+            </div>
+            <p style="margin: 0; color: #666;">
+                {{ average_rating|floatformat:1 }}/5 ({{ review_count }} отзывов)
+            </p>
+        </div>
         
         <div style="margin-top: 20px; text-align: center;">
             <p class="game-price" style="font-size: 2rem;">{{ game.price }} ₽</p>
@@ -78,7 +99,196 @@
     </div>
 </div>
 
+<!-- СЕКЦИЯ ОТЗЫВОВ -->
+<div style="margin-top: 50px;">
+    <h2>Отзывы покупателей ({{ review_count }})</h2>
+    
+    <!-- Форма для добавления отзыва -->
+    {% if user.is_authenticated and can_review %}
+        <div style="background: white; padding: 25px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 30px;">
+            <h3>{% if user_review %}Редактировать ваш отзыв{% else %}Оставить отзыв{% endif %}</h3>
+            
+            {% if user_review %}
+            <div style="background: #e8f5e9; padding: 15px; border-radius: 6px; margin-bottom: 15px;">
+                <p><strong>Ваш текущий отзыв:</strong> {{ user_review.rating }}/5</p>
+                <p>{{ user_review.comment }}</p>
+                <p style="font-size: 0.9rem; color: #666;">{{ user_review.created_at|date:"d.m.Y H:i" }}</p>
+            </div>
+            {% endif %}
+            
+            <form action="{% url 'add_review' game.id %}" method="post">
+                {% csrf_token %}
+                
+                <div style="margin-bottom: 15px;">
+                    <label for="rating"><strong>Ваша оценка:</strong></label>
+                    <div style="display: flex; gap: 5px; margin-top: 5px;">
+                        {% for i in "54321" %}
+                        <label style="cursor: pointer;">
+                            <input type="radio" name="rating" value="{{ i }}" 
+                                   {% if user_review and user_review.rating == i|add:"0" %}checked{% endif %}
+                                   required style="display: none;">
+                            <span style="font-size: 2rem; color: {% if user_review and user_review.rating >= i|add:"0" %}gold{% else %}#ddd{% endif %};"
+                                  onmouseover="this.style.color='gold'"
+                                  onmouseout="this.style.color='{% if user_review and user_review.rating >= i|add:"0" %}gold{% else %}#ddd{% endif %}'">
+                                ★
+                            </span>
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                <div style="margin-bottom: 15px;">
+                    <label for="comment"><strong>Ваш отзыв:</strong></label>
+                    <textarea name="comment" id="comment" rows="4" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;" 
+                              required>{% if user_review %}{{ user_review.comment }}{% endif %}</textarea>
+                </div>
+                
+                <div style="display: flex; gap: 10px;">
+                    <button type="submit" class="btn" style="background: #28a745;">
+                        {% if user_review %}Обновить отзыв{% else %}Добавить отзыв{% endif %}
+                    </button>
+                    
+                    {% if user_review %}
+                    <a href="{% url 'delete_review' user_review.id %}" class="btn btn-danger" 
+                       onclick="return confirm('Вы уверены, что хотите удалить свой отзыв?')">
+                        Удалить отзыв
+                    </a>
+                    {% endif %}
+                </div>
+            </form>
+        </div>
+    {% elif user.is_authenticated and not can_review %}
+        <div style="background: #fff3cd; padding: 15px; border-radius: 8px; margin-bottom: 30px; border-left: 4px solid #ffc107;">
+            <p>✋ <strong>Вы можете оставить отзыв только после покупки этой игры.</strong></p>
+            <p style="margin-top: 5px; font-size: 0.9rem;">Купите игру, чтобы поделиться своим мнением.</p>
+        </div>
+    {% else %}
+        <div style="background: #d1ecf1; padding: 15px; border-radius: 8px; margin-bottom: 30px; border-left: 4px solid #17a2b8;">
+            <p>🔒 <strong>Войдите в систему, чтобы оставить отзыв.</strong></p>
+            <p style="margin-top: 5px; font-size: 0.9rem;">
+                <a href="{% url 'site_login' %}?next={% url 'game_detail' game.id %}">Войдите</a> или 
+                <a href="/admin/">зарегистрируйтесь</a>, чтобы поделиться своим мнением.
+            </p>
+        </div>
+    {% endif %}
+    
+    <!-- Список отзывов -->
+    {% if reviews %}
+        <div style="margin-top: 20px;">
+            {% for review in reviews %}
+            <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 15px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <div>
+                        <strong style="font-size: 1.1rem;">{{ review.user.username }}</strong>
+                        {% if review.user.is_staff %}
+                        <span style="background: #ffc107; color: #212529; padding: 2px 8px; border-radius: 10px; font-size: 0.8rem; margin-left: 8px;">
+                            👑 Менеджер
+                        </span>
+                        {% endif %}
+                    </div>
+                    <div style="color: #666; font-size: 0.9rem;">
+                        {{ review.created_at|date:"d.m.Y H:i" }}
+                    </div>
+                </div>
+                
+                <div style="color: gold; font-size: 1.2rem; margin-bottom: 10px;">
+                    {% for i in "12345" %}
+                        {% if forloop.counter <= review.rating %}
+                            ★
+                        {% else %}
+                            ☆
+                        {% endif %}
+                    {% endfor %}
+                    <span style="color: #666; font-size: 0.9rem; margin-left: 10px;">{{ review.rating }}/5</span>
+                </div>
+                
+                <p style="margin: 0; line-height: 1.6;">{{ review.comment }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div style="text-align: center; padding: 40px; background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+            <p style="font-size: 1.2rem; color: #666;">Пока нет отзывов на эту игру</p>
+            <p>Будьте первым, кто оставит отзыв!</p>
+        </div>
+    {% endif %}
+</div>
+
 <div style="margin-top: 40px;">
     <a href="{% url 'game_list' %}" class="btn">← Вернуться к каталогу</a>
 </div>
+
+<script>
+// JavaScript для рейтинга звездочек
+document.addEventListener('DOMContentLoaded', function() {
+    const stars = document.querySelectorAll('input[name="rating"] + span');
+    
+    stars.forEach(star => {
+        star.addEventListener('click', function() {
+            const rating = this.previousElementSibling.value;
+            
+            // Обновляем цвет всех звезд
+            stars.forEach(s => {
+                s.style.color = '#ddd';
+            });
+            
+            // Закрашиваем выбранные звезды
+            for (let i = 0; i < rating; i++) {
+                if (stars[i]) {
+                    stars[i].style.color = 'gold';
+                }
+            }
+        });
+        
+        // Обработка наведения для предпросмотра
+        star.addEventListener('mouseover', function() {
+            const rating = this.previousElementSibling.value;
+            
+            stars.forEach((s, index) => {
+                if (index < rating) {
+                    s.style.color = 'gold';
+                }
+            });
+        });
+        
+        star.addEventListener('mouseout', function() {
+            const checked = document.querySelector('input[name="rating"]:checked');
+            if (checked) {
+                const rating = checked.value;
+                stars.forEach((s, index) => {
+                    s.style.color = index < rating ? 'gold' : '#ddd';
+                });
+            } else {
+                stars.forEach(s => {
+                    s.style.color = '#ddd';
+                });
+            }
+        });
+    });
+});
+</script>
+
+<style>
+    /* Стили для звезд рейтинга */
+    input[name="rating"] + span {
+        transition: color 0.2s;
+        cursor: pointer;
+    }
+    
+    input[name="rating"]:checked + span {
+        color: gold !important;
+    }
+    
+    /* Адаптивность */
+    @media (max-width: 768px) {
+        .game-detail-container {
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+        
+        .reviews-section {
+            padding: 15px;
+        }
+    }
+</style>
 {% endblock %}

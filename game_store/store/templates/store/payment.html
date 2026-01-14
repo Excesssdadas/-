@@ -1,0 +1,324 @@
+{% extends 'store/base.html' %}
+
+{% block title %}Оплата заказа #{{ order.id }} - Game Store{% endblock %}
+
+{% block content %}
+<div class="payment-container">
+    <div class="payment-card">
+        <div class="payment-header">
+            <h1>💳 Оплата заказа #{{ order.id }}</h1>
+            <p>Выберите способ оплаты</p>
+        </div>
+        
+        <div class="order-summary">
+            <h3>Детали заказа:</h3>
+            <div class="order-details">
+                <p><strong>Сумма к оплате:</strong> <span class="price">{{ order.total_amount }} ₽</span></p>
+                <p><strong>Дата заказа:</strong> {{ order.created_at|date:"d.m.Y H:i" }}</p>
+                <p><strong>Статус:</strong> <span class="status-pending">Ожидает оплаты</span></p>
+            </div>
+            
+            <div class="order-items">
+                <h4>Товары в заказе:</h4>
+                <ul>
+                    {% for item in order.orderitem_set.all %}
+                    <li>{{ item.game.title }} x {{ item.quantity }} = {{ item.price|floatformat:2 }} ₽</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        
+        <form method="post" class="payment-form">
+            {% csrf_token %}
+            
+            <div class="payment-methods">
+                <h3>Выберите способ оплаты:</h3>
+                
+                <div class="payment-option">
+                    <input type="radio" id="card" name="payment_method" value="card" checked>
+                    <label for="card">
+                        <div class="payment-icon">💳</div>
+                        <div class="payment-info">
+                            <h4>Банковская карта</h4>
+                            <p>Оплата картой Visa/MasterCard/MIR</p>
+                            <small>Мгновенное подтверждение</small>
+                        </div>
+                    </label>
+                </div>
+                
+                <div class="payment-option">
+                    <input type="radio" id="email" name="payment_method" value="email">
+                    <label for="email">
+                        <div class="payment-icon">📧</div>
+                        <div class="payment-info">
+                            <h4>Оплата по email</h4>
+                            <p>Подтверждение через ссылку в письме</p>
+                            <small>Более безопасный способ</small>
+                        </div>
+                    </label>
+                </div>
+            </div>
+            
+            <div class="payment-notice">
+                <div class="notice-icon">ℹ️</div>
+                <div class="notice-text">
+                    <strong>Внимание:</strong> Это демонстрационная платежная система. 
+                    Выберите "Банковская карта" для мгновенной эмуляции оплаты.
+                </div>
+            </div>
+            
+            <div class="payment-actions">
+                <button type="submit" class="payment-btn">
+                    💳 Оплатить {{ order.total_amount|floatformat:2 }} ₽
+                </button>
+                <a href="{% url 'cart' %}" class="cancel-btn">Отмена</a>
+            </div>
+        </form>
+        
+        <div class="payment-help">
+            <h4>Нужна помощь?</h4>
+            <ul>
+                <li>💬 По вопросам оплаты: support@gamestore.com</li>
+                <li>🔄 Отмена заказа: До момента оплаты вы можете отменить заказ</li>
+                <li>🔒 Все платежи защищены</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<style>
+    .payment-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    .payment-card {
+        background: white;
+        border-radius: 15px;
+        padding: 40px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+    
+    .payment-header {
+        text-align: center;
+        margin-bottom: 30px;
+        border-bottom: 2px solid #667eea;
+        padding-bottom: 20px;
+    }
+    
+    .payment-header h1 {
+        color: #1a1a2e;
+        font-size: 2.2rem;
+        margin-bottom: 10px;
+    }
+    
+    .payment-header p {
+        color: #666;
+        font-size: 1.1rem;
+    }
+    
+    .order-summary {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 25px;
+        margin-bottom: 30px;
+        border-left: 4px solid #667eea;
+    }
+    
+    .order-summary h3 {
+        margin-bottom: 15px;
+        color: #333;
+    }
+    
+    .order-details {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+    
+    .price {
+        color: #28a745;
+        font-weight: bold;
+        font-size: 1.3rem;
+    }
+    
+    .status-pending {
+        background: #fff3cd;
+        color: #856404;
+        padding: 4px 10px;
+        border-radius: 4px;
+        font-size: 0.9rem;
+    }
+    
+    .order-items {
+        background: white;
+        padding: 15px;
+        border-radius: 8px;
+        border: 1px solid #eaeaea;
+    }
+    
+    .order-items h4 {
+        margin-bottom: 10px;
+        color: #555;
+    }
+    
+    .order-items ul {
+        list-style: none;
+        padding: 0;
+    }
+    
+    .order-items li {
+        padding: 8px 0;
+        border-bottom: 1px solid #f0f0f0;
+    }
+    
+    .order-items li:last-child {
+        border-bottom: none;
+    }
+    
+    .payment-methods {
+        margin-bottom: 30px;
+    }
+    
+    .payment-methods h3 {
+        margin-bottom: 20px;
+        color: #333;
+    }
+    
+    .payment-option {
+        margin-bottom: 15px;
+    }
+    
+    .payment-option input[type="radio"] {
+        display: none;
+    }
+    
+    .payment-option label {
+        display: flex;
+        align-items: center;
+        padding: 20px;
+        border: 2px solid #e0e0e0;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.3s;
+        background: white;
+    }
+    
+    .payment-option input[type="radio"]:checked + label {
+        border-color: #667eea;
+        background: #f0f4ff;
+        box-shadow: 0 5px 15px rgba(102,126,234,0.2);
+    }
+    
+    .payment-icon {
+        font-size: 2.5rem;
+        margin-right: 20px;
+        min-width: 60px;
+    }
+    
+    .payment-info h4 {
+        margin: 0 0 5px 0;
+        color: #333;
+    }
+    
+    .payment-info p {
+        margin: 0;
+        color: #666;
+        font-size: 0.95rem;
+    }
+    
+    .payment-info small {
+        color: #28a745;
+        font-size: 0.85rem;
+    }
+    
+    .payment-notice {
+        background: #e3f2fd;
+        border-radius: 10px;
+        padding: 15px 20px;
+        margin-bottom: 25px;
+        display: flex;
+        align-items: center;
+        border-left: 4px solid #2196f3;
+    }
+    
+    .notice-icon {
+        font-size: 1.5rem;
+        margin-right: 15px;
+    }
+    
+    .notice-text {
+        font-size: 0.95rem;
+        color: #0d47a1;
+    }
+    
+    .payment-actions {
+        text-align: center;
+    }
+    
+    .payment-btn {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+        border: none;
+        padding: 18px 40px;
+        font-size: 1.2rem;
+        font-weight: bold;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.3s;
+        box-shadow: 0 6px 20px rgba(40,167,69,0.3);
+        display: inline-block;
+        margin-bottom: 15px;
+        width: 100%;
+        max-width: 400px;
+    }
+    
+    .payment-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 30px rgba(40,167,69,0.4);
+        background: linear-gradient(135deg, #218838 0%, #1ba87e 100%);
+    }
+    
+    .cancel-btn {
+        display: inline-block;
+        color: #666;
+        text-decoration: none;
+        padding: 10px 20px;
+        border-radius: 6px;
+        transition: all 0.3s;
+    }
+    
+    .cancel-btn:hover {
+        color: #dc3545;
+        background: #f8f9fa;
+    }
+    
+    .payment-help {
+        margin-top: 40px;
+        padding-top: 25px;
+        border-top: 1px solid #eee;
+    }
+    
+    .payment-help h4 {
+        color: #333;
+        margin-bottom: 15px;
+    }
+    
+    .payment-help ul {
+        list-style: none;
+        padding: 0;
+    }
+    
+    .payment-help li {
+        padding: 8px 0;
+        color: #666;
+        border-bottom: 1px solid #f0f0f0;
+    }
+    
+    .payment-help li:last-child {
+        border-bottom: none;
+    }
+</style>
+{% endblock %}

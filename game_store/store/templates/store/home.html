@@ -3,10 +3,12 @@
 {% block title %}Главная - Game Store{% endblock %}
 
 {% block content %}
-<div class="hero">
-    <h1>Добро пожаловать в Game Store! 🎮</h1>
-    <p>Лучший выбор игр по лучшим ценам</p>
-    <a href="{% url 'game_list' %}" class="btn">Смотреть все игры</a>
+<div class="welcome-banner">
+    <div class="welcome-content">
+        <h1>Добро пожаловать в Game Store! 🎮</h1>
+        <p>Лучший выбор игр по лучшим ценам</p>
+        <a href="{% url 'game_list' %}" class="welcome-btn">Смотреть все игры</a>
+    </div>
 </div>
 
 <div class="featured-games">
@@ -34,48 +36,364 @@
     </div>
 </div>
 
-<div class="categories">
-    <h2>Популярные жанры</h2>
-    <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px;">
-        {% for genre in genres %}
-        <a href="{% url 'game_list' %}?genre={{ genre.id }}" 
-           style="background: #667eea; color: white; padding: 10px 20px; border-radius: 4px; text-decoration: none;">
-            {{ genre.name }}
-        </a>
-        {% endfor %}
+<div class="genres-banner">
+    <div class="genres-content">
+        <h2>🎯 Популярные жанры</h2>
+        <p>Выберите свой любимый жанр и откройте мир увлекательных игр</p>
+        <div class="genres-grid">
+            <a href="{% url 'game_list' %}?search=MMORPG" class="genre-card">
+                <div class="genre-icon">👥</div>
+                <h3>MMORPG</h3>
+                <p>Многопользовательские ролевые игры</p>
+            </a>
+            <a href="{% url 'game_list' %}?genre={{ genres.1.id|default:'' }}" class="genre-card">
+                <div class="genre-icon">⚔️</div>
+                <h3>RPG</h3>
+                <p>Ролевые игры с глубоким сюжетом</p>
+            </a>
+            <a href="{% url 'game_list' %}?genre={{ genres.0.id|default:'' }}" class="genre-card">
+                <div class="genre-icon">🔫</div>
+                <h3>Shooter</h3>
+                <p>Экшен и стратегия в одном</p>
+            </a>
+            <a href="{% url 'game_list' %}?genre={{ genres.7.id|default:'' }}" class="genre-card">
+                <div class="genre-icon">🎨</div>
+                <h3>Indie</h3>
+                <p>Независимые игры от авторов</p>
+            </a>
+            <a href="{% url 'game_list' %}?search=FMV" class="genre-card">
+                <div class="genre-icon">🎬</div>
+                <h3>FMV</h3>
+                <p>Игры с живым видео</p>
+            </a>
+            <a href="{% url 'game_list' %}?search=Metroidvania" class="genre-card">
+                <div class="genre-icon">🧩</div>
+                <h3>Metroidvania</h3>
+                <p>Исследование и прогресс</p>
+            </a>
+            <a href="{% url 'game_list' %}?search=Extraction" class="genre-card">
+                <div class="genre-icon">🎒</div>
+                <h3>Extraction-shooter</h3>
+                <p>Выживание и добыча ресурсов</p>
+            </a>
+            <a href="{% url 'game_list' %}?search=Sandbox" class="genre-card">
+                <div class="genre-icon">🛠️</div>
+                <h3>Sandbox</h3>
+                <p>Свобода творчества</p>
+            </a>
+        </div>
     </div>
 </div>
 
 <style>
-    .hero {
-        text-align: center;
-        padding: 40px 0;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    .welcome-banner {
+        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
         color: white;
-        border-radius: 8px;
+        padding: 60px 20px;
+        text-align: center;
+        border-radius: 15px;
         margin-bottom: 40px;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+        position: relative;
+        overflow: hidden;
     }
     
-    .hero h1 {
-        font-size: 2.5rem;
+    .welcome-banner::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: radial-gradient(circle at 20% 50%, rgba(102,126,234,0.3) 0%, transparent 50%),
+                    radial-gradient(circle at 80% 20%, rgba(255,71,87,0.3) 0%, transparent 50%);
+        z-index: 1;
+    }
+    
+    .welcome-content {
+        position: relative;
+        z-index: 2;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    
+    .welcome-banner h1 {
+        font-size: 2.8rem;
         margin-bottom: 20px;
+        text-shadow: 2px 2px 8px rgba(0,0,0,0.5);
+        background: linear-gradient(135deg, #ff4757 0%, #667eea 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
     }
     
-    .hero p {
-        font-size: 1.2rem;
-        margin-bottom: 30px;
+    .welcome-banner p {
+        font-size: 1.3rem;
+        margin-bottom: 35px;
         opacity: 0.9;
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
     }
     
-    .featured-games, .categories {
+    .welcome-btn {
+        display: inline-block;
+        background: linear-gradient(135deg, #ff4757 0%, #ff6b81 100%);
+        color: white;
+        padding: 15px 35px;
+        border-radius: 50px;
+        text-decoration: none;
+        font-weight: bold;
+        font-size: 1.1rem;
+        transition: all 0.3s;
+        box-shadow: 0 6px 20px rgba(255,71,87,0.4);
+        border: none;
+        cursor: pointer;
+        animation: pulse 2s infinite;
+    }
+    
+    .welcome-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 30px rgba(255,71,87,0.6);
+        background: linear-gradient(135deg, #ff3742 0%, #ff5a6e 100%);
+    }
+    
+    .featured-games {
         margin-bottom: 40px;
     }
     
-    .featured-games h2, .categories h2 {
+    .featured-games h2 {
         margin-bottom: 20px;
         color: #333;
         border-bottom: 2px solid #667eea;
         padding-bottom: 10px;
+        font-size: 1.8rem;
+    }
+    
+    /* Стили для секции жанров */
+    .genres-banner {
+        background: linear-gradient(135deg, #16213e 0%, #1a1a2e 100%);
+        color: white;
+        padding: 50px 20px;
+        border-radius: 15px;
+        margin-bottom: 40px;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .genres-banner::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: radial-gradient(circle at 80% 50%, rgba(255,71,87,0.2) 0%, transparent 50%),
+                    radial-gradient(circle at 20% 20%, rgba(102,126,234,0.2) 0%, transparent 50%);
+        z-index: 1;
+    }
+    
+    .genres-content {
+        position: relative;
+        z-index: 2;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    
+    .genres-content h2 {
+        text-align: center;
+        font-size: 2.5rem;
+        margin-bottom: 15px;
+        background: linear-gradient(135deg, #667eea 0%, #ff4757 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        text-shadow: 2px 2px 8px rgba(0,0,0,0.3);
+    }
+    
+    .genres-content > p {
+        text-align: center;
+        font-size: 1.2rem;
+        margin-bottom: 40px;
+        opacity: 0.9;
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    
+    .genres-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 25px;
+    }
+    
+    .genre-card {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        padding: 25px;
+        text-align: center;
+        text-decoration: none;
+        color: white;
+        transition: all 0.3s;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+    
+    .genre-card:hover {
+        transform: translateY(-8px);
+        background: rgba(255, 255, 255, 0.15);
+        border-color: rgba(255,71,87,0.4);
+        box-shadow: 0 15px 30px rgba(255,71,87,0.3);
+    }
+    
+    .genre-icon {
+        font-size: 3.5rem;
+        margin-bottom: 15px;
+        transition: transform 0.3s;
+    }
+    
+    .genre-card:hover .genre-icon {
+        transform: scale(1.2);
+    }
+    
+    .genre-card h3 {
+        font-size: 1.5rem;
+        margin-bottom: 10px;
+        color: white;
+        font-weight: bold;
+    }
+    
+    .genre-card p {
+        font-size: 0.95rem;
+        opacity: 0.8;
+        line-height: 1.5;
+        margin: 0;
+    }
+    
+    /* Общие стили для сеток */
+    .games-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 20px;
+        margin: 20px 0;
+    }
+    
+    .game-card {
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        transition: transform 0.3s, box-shadow 0.3s;
+    }
+    
+    .game-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+    }
+    
+    .game-image {
+        width: 100%;
+        height: 180px;
+        object-fit: cover;
+        transition: transform 0.5s;
+    }
+    
+    .game-card:hover .game-image {
+        transform: scale(1.05);
+    }
+    
+    .game-info {
+        padding: 20px;
+    }
+    
+    .game-title {
+        font-size: 1.2rem;
+        margin-bottom: 10px;
+        color: #333;
+        font-weight: bold;
+    }
+    
+    .game-price {
+        color: #667eea;
+        font-weight: bold;
+        font-size: 1.4rem;
+        margin: 10px 0;
+    }
+    
+    .btn {
+        display: inline-block;
+        background: #667eea;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        text-decoration: none;
+        transition: background 0.3s, transform 0.3s;
+        font-weight: 500;
+    }
+    
+    .btn:hover {
+        background: #5a67d8;
+        transform: translateY(-2px);
+    }
+    
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
+    }
+    
+    @media (max-width: 768px) {
+        .welcome-banner {
+            padding: 40px 15px;
+        }
+        
+        .welcome-banner h1 {
+            font-size: 2rem;
+        }
+        
+        .welcome-banner p {
+            font-size: 1.1rem;
+        }
+        
+        .welcome-btn {
+            padding: 12px 25px;
+            font-size: 1rem;
+        }
+        
+        .genres-banner {
+            padding: 30px 15px;
+        }
+        
+        .genres-content h2 {
+            font-size: 2rem;
+        }
+        
+        .genres-grid {
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        
+        .genre-card {
+            padding: 20px 15px;
+        }
+        
+        .genre-icon {
+            font-size: 2.5rem;
+        }
+        
+        .genre-card h3 {
+            font-size: 1.3rem;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .genres-grid {
+            grid-template-columns: 1fr;
+        }
     }
 </style>
 {% endblock %}

@@ -64,7 +64,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'store.context_processors.cart_context',  # Наш контекстный процессор для корзины
+                'store.context_processors.cart_context',
             ],
         },
     },
@@ -106,9 +106,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
-LANGUAGE_CODE = 'ru-ru'  # Меняем на русский
+LANGUAGE_CODE = 'ru-ru'
 
-TIME_ZONE = 'Europe/Moscow'  # Меняем на московское время
+TIME_ZONE = 'Europe/Moscow'
 
 USE_I18N = True
 
@@ -133,16 +133,18 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# Настройки аутентификации - ВАЖНО!
+LOGIN_URL = '/site-login/'  # Наша кастомная страница входа
+LOGOUT_REDIRECT_URL = '/'   # После выхода - на главную
+LOGIN_REDIRECT_URL = '/'    # После успешного входа - на главную
+
 # Настройки сессии
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 SESSION_COOKIE_AGE = 1209600  # 2 недели в секундах
+SESSION_SAVE_EVERY_REQUEST = True
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False
 
-# Настройки аутентификации
-LOGIN_URL = '/admin/login/'
-LOGOUT_REDIRECT_URL = '/'
-LOGIN_REDIRECT_URL = '/'
-
-# Максимальный размер загружаемых файлов (в байтах)
+# Максимальный размер загружаемых файлов
 DATA_UPLOAD_MAX_MEMORY_SIZE = 5242880  # 5MB
 FILE_UPLOAD_MAX_MEMORY_SIZE = 5242880  # 5MB
 
@@ -155,3 +157,23 @@ MESSAGE_TAGS = {
     messages.WARNING: 'warning',
     messages.ERROR: 'error',
 }
+
+# Дополнительные настройки безопасности
+SECURE_BROWSER_XSS_FILTER = True
+X_FRAME_OPTIONS = 'DENY'
+# Настройки email (для разработки - письма в консоль)
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_HOST = 'localhost'
+EMAIL_PORT = 25
+DEFAULT_FROM_EMAIL = 'noreply@gamestore.com'
+
+# Для продакшена (раскомментируйте и настройте):
+"""
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'your-email@gmail.com'
+EMAIL_HOST_PASSWORD = 'your-password'
+DEFAULT_FROM_EMAIL = 'noreply@gamestore.com'
+"""

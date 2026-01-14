@@ -1,0 +1,219 @@
+{% extends 'store/base.html' %}
+
+{% block title %}Ожидание подтверждения - Game Store{% endblock %}
+
+{% block content %}
+<div class="pending-container">
+    <div class="pending-card">
+        <div class="pending-header">
+            <div class="pending-icon">📧</div>
+            <h1>Подтвердите оплату</h1>
+            <p>Ссылка для подтверждения отправлена на ваш email</p>
+        </div>
+        
+        <div class="order-info">
+            <div class="info-box">
+                <h3>📋 Информация о заказе</h3>
+                <div class="info-row">
+                    <span>Номер заказа:</span>
+                    <strong>#{{ order.id }}</strong>
+                </div>
+                <div class="info-row">
+                    <span>Сумма к оплате:</span>
+                    <span class="amount">{{ order.total_amount }} ₽</span>
+                </div>
+                <div class="info-row">
+                    <span>Способ оплаты:</span>
+                    <span>Оплата по email</span>
+                </div>
+                <div class="info-row">
+                    <span>Статус:</span>
+                    <span class="status-pending">⏳ Ожидает подтверждения</span>
+                </div>
+            </div>
+            
+            <div class="instructions">
+                <h3>📝 Инструкция</h3>
+                <ol>
+                    <li>Проверьте вашу почту: <strong>{{ order.customer.user.email }}</strong></li>
+                    <li>Найдите письмо от Game Store с темой "Подтверждение оплаты"</li>
+                    <li>Перейдите по ссылке в письме или введите код подтверждения</li>
+                    <li>После подтверждения заказ будет активирован</li>
+                </ol>
+                
+                {% if order.payment_code %}
+                <div class="code-info">
+                    <h4>Ваш код подтверждения:</h4>
+                    <div class="code-box">
+                        <code>{{ order.payment_code }}</code>
+                    </div>
+                    <p class="code-hint">Вы также можете ввести этот код на сайте</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="actions">
+            <a href="{% url 'order_history' %}" class="btn">📋 Мои заказы</a>
+            <a href="{% url 'payment' order.id %}" class="btn">↩️ Вернуться к оплате</a>
+            <a href="{% url 'home' %}" class="btn">🏠 На главную</a>
+        </div>
+    </div>
+</div>
+
+<style>
+    .pending-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        min-height: 70vh;
+    }
+    
+    .pending-card {
+        background: white;
+        border-radius: 15px;
+        padding: 40px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        text-align: center;
+    }
+    
+    .pending-header {
+        margin-bottom: 40px;
+        border-bottom: 2px solid #eaeaea;
+        padding-bottom: 30px;
+    }
+    
+    .pending-icon {
+        font-size: 4rem;
+        color: #667eea;
+        margin-bottom: 20px;
+        animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+        100% { transform: scale(1); }
+    }
+    
+    .pending-header h1 {
+        color: #1a1a2e;
+        font-size: 2.2rem;
+        margin-bottom: 10px;
+    }
+    
+    .pending-header p {
+        color: #666;
+        font-size: 1.1rem;
+    }
+    
+    .order-info {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 25px;
+        margin-bottom: 40px;
+        text-align: left;
+    }
+    
+    @media (min-width: 768px) {
+        .order-info {
+            grid-template-columns: 1fr 1fr;
+        }
+    }
+    
+    .info-box, .instructions {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 25px;
+    }
+    
+    .info-box h3, .instructions h3 {
+        margin-bottom: 20px;
+        color: #333;
+        border-bottom: 2px solid #667eea;
+        padding-bottom: 10px;
+    }
+    
+    .info-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #eaeaea;
+    }
+    
+    .info-row:last-child {
+        border-bottom: none;
+    }
+    
+    .amount {
+        color: #28a745;
+        font-weight: bold;
+        font-size: 1.3rem;
+    }
+    
+    .status-pending {
+        background: #fff3cd;
+        color: #856404;
+        padding: 6px 15px;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        font-weight: bold;
+        display: inline-block;
+    }
+    
+    .instructions ol {
+        padding-left: 20px;
+        margin-bottom: 25px;
+    }
+    
+    .instructions li {
+        margin-bottom: 15px;
+        color: #555;
+    }
+    
+    .code-info {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        border: 2px dashed #667eea;
+        text-align: center;
+        margin-top: 20px;
+    }
+    
+    .code-info h4 {
+        margin-bottom: 15px;
+        color: #333;
+    }
+    
+    .code-box {
+        background: #1a1a2e;
+        color: white;
+        padding: 15px;
+        border-radius: 8px;
+        font-family: monospace;
+        font-size: 1.8rem;
+        letter-spacing: 2px;
+        margin-bottom: 10px;
+    }
+    
+    .code-hint {
+        color: #666;
+        font-size: 0.9rem;
+        margin: 0;
+    }
+    
+    .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        justify-content: center;
+        margin-top: 40px;
+    }
+    
+    .actions .btn {
+        padding: 12px 25px;
+        min-width: 180px;
+    }
+</style>
+{% endblock %}
